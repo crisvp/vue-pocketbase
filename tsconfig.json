@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "lib": ["esnext", "dom"],
+    "moduleResolution": "Bundler",
+    "module": "ESNext",
+    "outDir": "./dist",
+    "allowJs": true,
+    "declaration": true,
+  },
+  "include": ["./src/**/*", "index.*"],
+  "exclude": ["node_modules/**/*"],
+}

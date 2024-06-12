@@ -1,0 +1,5 @@
+.gitignore
+.npmignore
+vite.config.mts
+.nx
+*gz

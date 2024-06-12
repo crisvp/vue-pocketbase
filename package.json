@@ -1,0 +1,45 @@
+{
+  "name": "@crisvp/vue-pocketbase",
+  "version": "1.0.0",
+  "description": "A plugin to use Pocketbase with Vue",
+  "type": "module",
+  "main": "dist/vue-pocketbase.js",
+  "types": "dist/vue-pocketbase.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/vue-pocketbase.cjs.js"
+    },
+    "./plugin": {
+      "import": "./plugin/index.js"
+    },
+    "./composables": {
+      "import": "./plugin/composables.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -b . && vite build",
+    "test": "vitest run",
+    "lint": "eslint ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "peerDependencies": {
+    "@crisvp/pocketbase-js": "workspace:^",
+    "vue": "^3.0.0"
+  },
+  "dependencies": {
+    "cookie": "^0.6.0",
+    "universal-cookie": "^7.1.4"
+  },
+  "devDependencies": {
+    "@types/cookie": "^0.6.0",
+    "eslint": "^8.57.0",
+    "jsdom": "^24.1.0",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.12",
+    "vite-plugin-dts": "^3.9.1",
+    "vitest": "^0.34.1"
+  }
+}

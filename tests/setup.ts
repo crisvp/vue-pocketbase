@@ -1,5 +1,6 @@
 import { vi } from "vitest";
 import { VuePocketbaseClient } from "../src/plugin/pocketbase";
+import { Collection } from "../src/composables/usePocketbaseCollection";
 
 const injectedVuePocketbase = vi.hoisted(() =>
   vi.fn(() => new VuePocketbaseClient())
@@ -18,7 +19,7 @@ export function setInjectedVuePocketbase(pocketbase: VuePocketbaseClient) {
   injectedVuePocketbase.mockReturnValueOnce(pocketbase);
 }
 
-export interface TestCollection {
+export interface TestCollection extends Collection {
   id: string;
   name: string;
 }

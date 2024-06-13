@@ -1,13 +1,5 @@
 import { type RecordListOptions } from "@crisvp/pocketbase-js";
-import {
-  type MaybeRef,
-  watchEffect,
-  ref,
-  isRef,
-  computed,
-  Ref,
-  watch,
-} from "vue";
+import { type MaybeRef, watchEffect, ref, isRef, Ref, watch } from "vue";
 import type { VuePocketbaseClient } from "../plugin";
 
 export type MaybeResult<T> = T | undefined | null;
@@ -62,16 +54,13 @@ export default function usePocketbaseCollection<T extends Collection>(
     });
   }
 
-  function get<T>(
-    filter: MaybeRef<string> = "*",
-    gateRefs?: Ref<boolean> | Ref<boolean>[]
-  ) {
+  function get<T>(filter: MaybeRef<string> = "*") {
     const result = ref<MaybeResult<T>>();
 
     const fn = (filter = "*") =>
       client.collection<T>(collectionName).getFirstListItem(filter);
 
-    watchQuery(result, filter, fn, gateRefs);
+    watchQuery(result, filter, fn);
     return result;
   }
 
@@ -79,12 +68,7 @@ export default function usePocketbaseCollection<T extends Collection>(
     const result = ref<MaybeResult<T>>();
     const fn = (id: string) => client.collection<T>(collectionName).getOne(id);
 
-    watchQuery(
-      result,
-      id,
-      fn,
-      isRef(id) ? [computed(() => !!id.value)] : undefined
-    );
+    watchQuery(result, id, fn);
     return result;
   }
 

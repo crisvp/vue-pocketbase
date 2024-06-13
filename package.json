@@ -21,7 +21,7 @@
     "build": "tsc -b . && vite build",
     "test": "vitest run",
     "coverage": "vitest run --coverage",
-    "lint": "eslint ."
+    "lint": "tsc -p . --noEmit && eslint ."
   },
   "keywords": [],
   "author": "",

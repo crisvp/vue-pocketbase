@@ -65,6 +65,10 @@ describe("usePocketbase", () => {
 
   test("provides collections", () => {
     const pb = usePocketbase<{ account: TestCollection }>();
-    expect(() => (pb.collection.account = null)).toThrowError();
+    expect(
+      () =>
+        (pb.collection.account =
+          null as unknown as typeof pb.collection.account)
+    ).toThrowError();
   });
 });

@@ -9,14 +9,6 @@ type CollectionService<T> = {
   [P in keyof T]: RecordService<T[P]>;
 };
 
-// export interface VuePocketbase {
-//   client: Client;
-//   authenticated: Ref<boolean>;
-//   userId: Ref<string | null>;
-//   filter: (query: string, opts?: CollectionSpecification) => string;
-//   collection: CollectionSpecification;
-// }
-
 export function usePocketbase<T extends CollectionSpecification>() {
   const client = usePocketbaseClient();
 

@@ -1,49 +1,63 @@
+import { type RecordListOptions } from "@crisvp/pocketbase-js";
 import {
-  type ListResult,
-  type RecordListOptions,
-  type RecordModel,
-} from "@crisvp/pocketbase-js";
-import {
-  type Ref,
   type MaybeRef,
   watchEffect,
   ref,
   isRef,
   computed,
+  Ref,
+  watch,
 } from "vue";
-import type { VuePocketbase } from "../plugin";
+import type { VuePocketbaseClient } from "../plugin";
 
-export type Collection = RecordModel;
-export type QueryRef<T> = Ref<T | undefined> & { _queryId: string };
+export type MaybeResult<T> = T | undefined | null;
+export type Collection = Record<string, unknown>;
+export type QueryRef<T> = MaybeResult<T> & {
+  _queryId: string;
+};
 
 export default function usePocketbaseCollection<T extends Collection>(
-  pocketbase: VuePocketbase,
+  pocketbase: VuePocketbaseClient,
   collectionName: string
 ) {
   const { client } = pocketbase;
-  async function create(data: T) {
-    return await client.collection<T>(collectionName).create(data);
+  const lastError = ref<Error | null>(null);
+
+  function create(data: T) {
+    return client.collection<T>(collectionName).create(data);
   }
 
   function watchQuery<T>(
-    result: Ref<T | undefined>,
-    filter: MaybeRef<string>,
-    fn: (filter: string) => Promise<T>,
-    refs: Ref<boolean> | Ref<boolean>[] = ref(true)
+    result: Ref<T | null>,
+    filter: MaybeRef<string | undefined>,
+    fn: (filter: string) => Promise<T>
   ): void {
     watchEffect(() => {
-      const gatePass = (Array.isArray(refs) ? refs : [refs]).every(
-        (r) => r.value
-      );
-      if (!gatePass) return;
-
       if (isRef(filter)) {
-        watchEffect(async () => {
-          const r = await fn(filter.value);
-          result.value = r;
-        });
+        watch(
+          filter,
+          async (filter) => {
+            try {
+              if (filter) {
+                const r = await fn(filter);
+                result.value = r;
+              }
+            } catch (e: unknown) {
+              result.value = null;
+              lastError.value = e as Error;
+            }
+          },
+          { immediate: true }
+        );
       } else {
-        fn(filter).then((r) => (result.value = r));
+        if (!filter) throw new Error("Filter is required");
+
+        fn(filter)
+          .then((r) => (result.value = r))
+          .catch((e) => {
+            result.value = null;
+            lastError.value = e;
+          });
       }
     });
   }
@@ -51,20 +65,21 @@ export default function usePocketbaseCollection<T extends Collection>(
   function get<T>(
     filter: MaybeRef<string> = "*",
     gateRefs?: Ref<boolean> | Ref<boolean>[]
-  ): Ref<T | undefined> {
-    const result = ref<T>();
-    const fn = <T>(filter: string) =>
+  ) {
+    const result = ref<MaybeResult<T>>();
+
+    const fn = (filter = "*") =>
       client.collection<T>(collectionName).getFirstListItem(filter);
 
-    watchQuery<T>(result, filter, fn, gateRefs);
+    watchQuery(result, filter, fn, gateRefs);
     return result;
   }
 
-  function getById<T>(id: string) {
-    const result = ref<T | undefined>();
+  function getById<T>(id: MaybeRef<string | undefined>) {
+    const result = ref<MaybeResult<T>>();
     const fn = (id: string) => client.collection<T>(collectionName).getOne(id);
 
-    watchQuery<T>(
+    watchQuery(
       result,
       id,
       fn,
@@ -78,23 +93,26 @@ export default function usePocketbaseCollection<T extends Collection>(
     page: number;
     perPage: number;
     options?: RecordListOptions;
-  }): Promise<ListResult<T[]>>;
+  }): Promise<T[]>;
   async function list(opts?: {
     page: number;
     perPage: number;
     options?: RecordListOptions;
-  }): Promise<T[] | ListResult<T[]>> {
+  }): Promise<T[]> {
     if (opts)
-      return await client
-        .collection<T>(collectionName)
-        .getList(opts.page, opts.perPage, opts.options);
-    return await client.collection<T>(collectionName).getFullList();
+      return (
+        await client
+          .collection<T>(collectionName)
+          .getList(opts.page, opts.perPage, opts.options)
+      ).items;
+    return client.collection<T>(collectionName).getFullList();
   }
 
-  async function update<
-    T extends FormData | Record<string, unknown> | undefined,
-  >(id: string, data: T) {
-    return await client.collection<T>(collectionName).update(id, data);
+  function update<T extends FormData | Record<string, unknown> | undefined>(
+    id: string,
+    data: T
+  ) {
+    return client.collection<T>(collectionName).update(id, data);
   }
 
   return {
@@ -103,5 +121,6 @@ export default function usePocketbaseCollection<T extends Collection>(
     getById,
     get,
     list,
+    lastError,
   };
 }

@@ -1,31 +1,15 @@
-import { afterAll, describe, expect, test, vi } from "vitest";
+import { describe, expect, test, vi } from "vitest";
 import { usePocketbase } from "../../src/composables";
-import { VuePocketbase } from "../../src/plugin";
-import { RecordModel } from "@crisvp/pocketbase-js";
-
-const injectVuePocketbase = vi.hoisted(() => vi.fn(() => new VuePocketbase()));
+import { VuePocketbaseClient } from "../../src/plugin";
+import { TestCollection } from "../setup";
 
 const mocks = vi.hoisted(() => ({
-  pocketbaseClient: vi.fn(() => null as unknown as VuePocketbase),
+  pocketbaseClient: vi.fn(() => null as unknown as VuePocketbaseClient),
 }));
 
 vi.mock("../../src/composables/usePocketbaseClient", () => ({
   usePocketbaseClient: mocks.pocketbaseClient,
 }));
-
-vi.mock("vue", async () => {
-  const actual = await vi.importActual<typeof import("vue")>("vue");
-
-  return {
-    ...actual,
-    inject: injectVuePocketbase,
-  };
-});
-
-interface TestCollection extends RecordModel {
-  id: string;
-  name: string;
-}
 
 describe("usePocketbase", () => {
   mocks.pocketbaseClient.mockReturnValue({
@@ -34,8 +18,7 @@ describe("usePocketbase", () => {
       collection: () => null,
       filter: () => "",
     },
-  } as unknown as VuePocketbase);
-  afterAll(() => void vi.resetAllMocks());
+  } as unknown as VuePocketbaseClient);
 
   test("provides a client", () => {
     const pb = usePocketbase();
@@ -65,7 +48,7 @@ describe("usePocketbase", () => {
           filter: () => "",
           authStore: { model: { id: "123" } },
         },
-      } as unknown as VuePocketbase);
+      } as unknown as VuePocketbaseClient);
 
       const pb = usePocketbase();
       expect(pb.userId).toHaveProperty("value", "123");

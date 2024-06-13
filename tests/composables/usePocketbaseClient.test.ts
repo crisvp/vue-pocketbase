@@ -1,28 +1,23 @@
+import { setInjectedVuePocketbase } from "../setup";
 import { usePocketbaseClient } from "../../src/composables/usePocketbaseClient";
-import { describe, expect, it, vi } from "vitest";
-import { VuePocketbase } from "../../src/plugin";
-
-const mockVue = vi.hoisted(() => ({
-  inject: vi.fn(() => new VuePocketbase()),
-}));
-
-vi.mock("vue", async () => {
-  const actual = await vi.importActual<typeof import("vue")>("vue");
-
-  return {
-    ...actual,
-    inject: mockVue.inject,
-  };
-});
+import { describe, expect, it } from "vitest";
+import { VuePocketbaseClient } from "../../src";
+import { Client } from "@crisvp/pocketbase-js";
 
 describe("usePocketbaseClient", () => {
   it("should throw error if pocketbase is not available", () => {
-    mockVue.inject.mockReturnValueOnce(undefined);
+    setInjectedVuePocketbase(undefined as unknown as VuePocketbaseClient);
     expect(() => usePocketbaseClient()).toThrowError(/not available/);
   });
 
-  it("should return pocketbase", () => {
+  it("should return injected pocketbase", () => {
     const pb = usePocketbaseClient();
-    expect(pb).toBeDefined();
+    expect(pb.client).toBeDefined();
+  });
+
+  it("should use provided pocketbase", () => {
+    const pbc = new Client();
+    const pb = usePocketbaseClient({ pocketbase: pbc });
+    expect(pb.client).toBe(pbc);
   });
 });

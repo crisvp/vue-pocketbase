@@ -1,5 +1,9 @@
 import { ref, type App, type Ref } from "vue";
-import { Client as PocketBase, type AuthModel } from "@crisvp/pocketbase-js";
+import {
+  Client,
+  Client as PocketBase,
+  type AuthModel,
+} from "@crisvp/pocketbase-js";
 import Cookies from "universal-cookie";
 import cookie from "cookie";
 
@@ -15,25 +19,30 @@ export class PBResetEvent extends Event {
   }
 }
 
-export class VuePocketbase extends EventTarget {
+export interface VuePocketbaseClientOpts {
+  url: string;
+  cookieExpiration: number;
+  cookieName: string;
+  pocketbase?: Client;
+}
+
+export class VuePocketbaseClient extends EventTarget {
+  options: VuePocketbaseClientOpts;
   client: PocketBase;
   filter: PocketBase["filter"];
   authenticated: Ref<boolean>;
   #cookieStore: Cookies;
 
-  constructor(
-    public options: {
-      url: string;
-      cookieExpiration: number;
-      cookieName: string;
-    } = {
+  constructor(options: Partial<VuePocketbaseClientOpts> = {}) {
+    super();
+    this.options = {
       url: "http://127.0.0.1:8090",
       cookieExpiration: 7,
       cookieName: "pocketbase_auth_token",
-    }
-  ) {
-    super();
-    this.client = new PocketBase(options.url);
+      pocketbase: undefined,
+      ...options,
+    };
+    this.client = options.pocketbase ?? new PocketBase(options.url);
     this.filter = this.client.filter;
     this.authenticated = ref(false);
 
@@ -122,7 +131,7 @@ export default {
       cookieName: "pocketbase_auth_token",
     }
   ) {
-    const pb = new VuePocketbase(options);
+    const pb = new VuePocketbaseClient(options);
 
     app.config.globalProperties.$pocketbase = pb;
     app.provide("pocketbase", pb);

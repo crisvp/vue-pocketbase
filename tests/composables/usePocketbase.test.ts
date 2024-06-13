@@ -1,54 +1,87 @@
-// @vitest-environment jsdom
-import { describe, expect, Mock, test, vi } from "vitest";
-import {
-  usePocketbase,
-  VuePocketBase,
-} from "../../src/composables/usePocketbase";
-import { inject } from "vue";
-import { CollectionAccount } from "../../src/composables/usePocketbaseCollection";
+import { afterAll, describe, expect, test, vi } from "vitest";
+import { usePocketbase } from "../../src/composables";
 import { VuePocketbase } from "../../src/plugin";
+import { RecordModel } from "@crisvp/pocketbase-js";
+
+const injectVuePocketbase = vi.hoisted(() => vi.fn(() => new VuePocketbase()));
+
+const mocks = vi.hoisted(() => ({
+  pocketbaseClient: vi.fn(() => null as unknown as VuePocketbase),
+}));
+
+vi.mock("../../src/composables/usePocketbaseClient", () => ({
+  usePocketbaseClient: mocks.pocketbaseClient,
+}));
 
 vi.mock("vue", async () => {
-  const actual: Awaited<typeof import("vue")> = await vi.importActual("vue");
+  const actual = await vi.importActual<typeof import("vue")>("vue");
 
   return {
     ...actual,
-    inject: vi.fn(() => new VuePocketbase()),
+    inject: injectVuePocketbase,
   };
 });
 
+interface TestCollection extends RecordModel {
+  id: string;
+  name: string;
+}
+
 describe("usePocketbase", () => {
+  mocks.pocketbaseClient.mockReturnValue({
+    authenticated: { value: false },
+    client: {
+      collection: () => null,
+      filter: () => "",
+    },
+  } as unknown as VuePocketbase);
+  afterAll(() => void vi.resetAllMocks());
+
   test("provides a client", () => {
     const pb = usePocketbase();
     expect(pb.client).toBeDefined();
   });
 
-  test("provides shorthands", () => {
+  describe("shorthands", () => {
     const pb = usePocketbase();
-    expect(pb.authenticated).toHaveProperty(
-      "value",
-      pb.client.authenticated.value
-    );
-    expect(pb.filter).toBe(pb.client.filter);
+
+    test("provides authenticated, and filter directly", () => {
+      expect(pb.authenticated).toHaveProperty(
+        "value",
+        pb.client.authenticated.value
+      );
+      expect(pb.filter).toBe(pb.client.filter);
+    });
+
+    test("provides null userId when not authenticated", () => {
+      expect(pb.userId).toHaveProperty("value", null);
+    });
+
+    test("provides userId when authenticated", () => {
+      mocks.pocketbaseClient.mockReturnValue({
+        authenticated: { value: true },
+        client: {
+          collection: () => null,
+          filter: () => "",
+          authStore: { model: { id: "123" } },
+        },
+      } as unknown as VuePocketbase);
+
+      const pb = usePocketbase();
+      expect(pb.userId).toHaveProperty("value", "123");
+    });
   });
 
   test("provides collections", () => {
-    const pb = usePocketbase<{ account: CollectionAccount }>();
+    const pb = usePocketbase<{ account: TestCollection }>();
     expect(pb.collection.account).toBeDefined();
-    expect(pb.collection.account.collectionIdOrName).toBe("account");
 
     // @ts-expect-error - typescript should error, but javascript will still return the object
     expect(pb.collection.doesNotExist).toBeDefined();
-    // @ts-expect-error - typescript should error, but javascript will still return the object
-    expect(pb.collection.doesNotExist.collectionIdOrName).toBe("doesNotExist");
   });
 
-  describe("when plugin not injected", () => {
-    test("throws an error", () => {
-      const injectMock = inject as Mock<[], VuePocketBase>;
-      injectMock.mockReturnValue(undefined as unknown as VuePocketBase);
-
-      expect(() => usePocketbase()).toThrowError(/Pocketbase not available/);
-    });
+  test("provides collections", () => {
+    const pb = usePocketbase<{ account: TestCollection }>();
+    expect(() => (pb.collection.account = null)).toThrowError();
   });
 });

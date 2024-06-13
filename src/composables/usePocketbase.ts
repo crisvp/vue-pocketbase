@@ -21,7 +21,7 @@ export function usePocketbase<T extends CollectionSpecification>() {
   const pb = usePocketbaseClient();
 
   const userId = computed(() =>
-    pb.authenticated ? pb.client.authStore.model?.id : null
+    pb.authenticated.value ? pb.client.authStore.model?.id : null
   );
 
   return {

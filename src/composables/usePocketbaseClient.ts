@@ -30,7 +30,7 @@ export function usePocketbaseClient(
   const pocketbase = inject<VuePocketbase>("pocketbase");
   if (!pocketbase)
     throw new Error(
-      "Pocketbase not available. Is the plugin loaded and configured?"
+      "Pocketbase not available. Is the plugin installed and added to your Vue app?"
     );
 
   pocketbase.configure(options);

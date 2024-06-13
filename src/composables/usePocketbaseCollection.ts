@@ -14,19 +14,8 @@ import {
 import type { VuePocketbase } from "../plugin";
 
 export type Collection = RecordModel;
-export interface CollectionAccount extends Collection {
-  id: string;
-  email: string;
-  username: string;
-  password: string;
-}
-
-export interface CollectionProfile extends Collection {
-  realName: string;
-  preferredName: string;
-}
-
 export type QueryRef<T> = Ref<T | undefined> & { _queryId: string };
+
 export default function usePocketbaseCollection<T extends Collection>(
   pocketbase: VuePocketbase,
   collectionName: string

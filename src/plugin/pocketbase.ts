@@ -52,10 +52,8 @@ export class VuePocketbaseClient extends EventTarget {
       "pb_auth="
     );
     this.client.authStore.loadFromCookie(cookie);
-    console.log("Cookie loaded from document.cookie", cookie);
 
     this.client.authStore.onChange((token, record) => {
-      console.log("authStore.onChange", token, record);
       if (!token || !record) {
         this.authenticated.value = false;
         this.client.authStore.clear();
@@ -67,10 +65,7 @@ export class VuePocketbaseClient extends EventTarget {
       this.dispatchEvent(new PBAuthenticatedEvent(record));
     });
 
-    if (this.client.authStore.isValid) {
-      console.log("Cookie loaded. Refreshing.");
-      this.authCollection.authRefresh();
-    }
+    if (this.client.authStore.isValid) this.authCollection.authRefresh();
   }
 
   get authCollection() {

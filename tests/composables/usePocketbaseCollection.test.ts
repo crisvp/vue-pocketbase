@@ -1,32 +1,13 @@
 import { setupServer } from "msw/node";
 import { beforeAll, describe, expect, it } from "vitest";
-import usePocketbaseCollection from "../src/composables/usePocketbaseCollection";
+import usePocketbaseCollection from "../../src/composables/usePocketbaseCollection";
 import { Client } from "@crisvp/pocketbase-js";
-import { usePocketbaseClient } from "../src/composables/usePocketbaseClient";
-import { TestCollection } from "./setup";
+import { usePocketbaseClient } from "../../src/composables/usePocketbaseClient";
+import { type TestCollection } from "../setup";
 import { ref } from "vue";
 import { http, HttpResponse } from "msw";
 
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
-// async function waitFor(condition: () => boolean, timeout = 1000) {
-//   let elapsed = 0;
-//   return new Promise<boolean>((resolve, reject) => {
-//     const interval = setInterval(() => {
-//       try {
-//         if (condition()) {
-//           clearInterval(interval);
-//           resolve(true);
-//         } else if (elapsed >= timeout) {
-//           clearInterval(interval);
-//           resolve(false);
-//         } else elapsed += 100;
-//       } catch (e) {
-//         clearInterval(interval);
-//         reject(e);
-//       }
-//     }, 100);
-//   });
-// }
 
 const restHandlers = [
   http.get("/api/collections/no_collection/records", () =>

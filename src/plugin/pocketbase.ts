@@ -1,9 +1,5 @@
 import { ref, type App, type Ref } from "vue";
-import {
-  Client,
-  Client as PocketBase,
-  type AuthModel,
-} from "@crisvp/pocketbase-js";
+import { Client as PocketBase, type AuthModel } from "@crisvp/pocketbase-js";
 import Cookies from "universal-cookie";
 import cookie from "cookie";
 
@@ -23,7 +19,7 @@ export interface VuePocketbaseClientOpts {
   url: string;
   cookieExpiration: number;
   cookieName: string;
-  pocketbase?: Client;
+  pocketbase?: PocketBase;
 }
 
 export class VuePocketbaseClient extends EventTarget {
@@ -56,9 +52,10 @@ export class VuePocketbaseClient extends EventTarget {
       "pb_auth="
     );
     this.client.authStore.loadFromCookie(cookie);
+    console.log("Cookie loaded from document.cookie", cookie);
 
     this.client.authStore.onChange((token, record) => {
-      console.log("onchange", token, record);
+      console.log("authStore.onChange", token, record);
       if (!token || !record) {
         this.authenticated.value = false;
         this.client.authStore.clear();
@@ -67,9 +64,7 @@ export class VuePocketbaseClient extends EventTarget {
 
       this.authenticated.value = true;
       this.setCookie();
-      console.log("Authenticated [event - in].", record);
       this.dispatchEvent(new PBAuthenticatedEvent(record));
-      console.log("Authenticated.");
     });
 
     if (this.client.authStore.isValid) {

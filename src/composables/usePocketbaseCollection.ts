@@ -8,7 +8,7 @@ export type QueryRef<T> = MaybeResult<T> & {
   _queryId: string;
 };
 
-export default function usePocketbaseCollection<T extends Collection>(
+export function usePocketbaseCollection<T extends Collection>(
   pocketbase: VuePocketbaseClient,
   collectionName: string
 ) {

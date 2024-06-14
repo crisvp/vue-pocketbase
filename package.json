@@ -3,18 +3,14 @@
   "version": "1.0.0",
   "description": "A plugin to use Pocketbase with Vue",
   "type": "module",
-  "main": "dist/vue-pocketbase.js",
-  "types": "dist/vue-pocketbase.d.ts",
+  "types": "./dist/vue-pocketbase.d.ts",
   "exports": {
     ".": {
-      "import": "./dist/index.js",
+      "import": "./dist/vue-pocketbase.js",
       "require": "./dist/vue-pocketbase.cjs.js"
     },
     "./plugin": {
-      "import": "./plugin/index.js"
-    },
-    "./composables": {
-      "import": "./plugin/composables.js"
+      "import": "./dist/plugin/index.js"
     }
   },
   "scripts": {

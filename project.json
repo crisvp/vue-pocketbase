@@ -1,0 +1,15 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "root": "pocketbase/vue-pocketbase",
+  "sourceRoot": "src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "@nx/vite:build",
+      "dependsOn": ["^build", "lint"],
+      "options": {
+        "outputPath": "{projectRoot}/dist"
+      }
+    }
+  }
+}

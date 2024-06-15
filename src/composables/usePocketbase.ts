@@ -11,6 +11,7 @@ type CollectionService<T> = {
 
 export function usePocketbase<T extends CollectionSpecification>() {
   const client = usePocketbaseClient();
+  console.log("hi");
 
   const userId = computed(() =>
     client.authenticated.value ? client.client.authStore.model?.id : null

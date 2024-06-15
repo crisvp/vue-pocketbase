@@ -1,6 +1,6 @@
 import { setupServer } from "msw/node";
 import { beforeAll, describe, expect, it } from "vitest";
-import usePocketbaseCollection from "../../src/composables/usePocketbaseCollection";
+import { usePocketbaseCollection } from "../../src/composables/usePocketbaseCollection";
 import { Client } from "@crisvp/pocketbase-js";
 import { usePocketbaseClient } from "../../src/composables/usePocketbaseClient";
 import { type TestCollection } from "../setup";

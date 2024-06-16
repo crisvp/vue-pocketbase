@@ -1,12 +1,11 @@
 import { computed } from "vue";
 import { usePocketbaseClient } from "./usePocketbaseClient";
 import { Collection } from "./usePocketbaseCollection";
-import { RecordService } from "@crisvp/pocketbase-js";
 
 type CollectionSpecification = Record<string, Collection>;
 
-type CollectionService<T> = {
-  [P in keyof T]: RecordService<T[P]>;
+type CollectionService<T extends CollectionSpecification> = {
+  [P in keyof T]: T[P];
 };
 
 export function usePocketbase<T extends CollectionSpecification>() {

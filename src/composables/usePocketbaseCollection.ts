@@ -1,28 +1,28 @@
-import { type RecordListOptions } from "@crisvp/pocketbase-js";
+import { RecordModel, type RecordListOptions } from "@crisvp/pocketbase-js";
 import { type MaybeRef, watchEffect, ref, isRef, Ref, watch } from "vue";
 import type { VuePocketbaseClient } from "../plugin";
 
 export type MaybeResult<T> = T | undefined | null;
-export type Collection = Record<string, unknown>;
+export type Collection = RecordModel;
 export type QueryRef<T> = MaybeResult<T> & {
   _queryId: string;
 };
 
-export function usePocketbaseCollection<T extends Collection>(
+export function usePocketbaseCollection<C extends Collection>(
   pocketbase: VuePocketbaseClient,
   collectionName: string
 ) {
   const { client } = pocketbase;
   const lastError = ref<Error | null>(null);
 
-  function create(data: T) {
-    return client.collection<T>(collectionName).create(data);
+  function create(data: C) {
+    return client.collection<C>(collectionName).create(data);
   }
 
-  function watchQuery<T>(
-    result: Ref<T | null>,
+  function watchQuery(
+    result: Ref<C | null | undefined>,
     filter: MaybeRef<string | undefined>,
-    fn: (filter: string) => Promise<T>
+    fn: (filter: string) => Promise<C>
   ): void {
     watchEffect(() => {
       if (isRef(filter)) {
@@ -54,49 +54,43 @@ export function usePocketbaseCollection<T extends Collection>(
     });
   }
 
-  function get<T>(filter: MaybeRef<string> = "*") {
-    const result = ref<MaybeResult<T>>();
+  function get(filter: MaybeRef<string> = "*") {
+    const result = ref<MaybeResult<C>>();
 
     const fn = (filter = "*") =>
-      client.collection<T>(collectionName).getFirstListItem(filter);
+      client.collection<C>(collectionName).getFirstListItem(filter);
 
     watchQuery(result, filter, fn);
     return result;
   }
 
-  function getById<T>(id: MaybeRef<string | undefined>) {
-    const result = ref<MaybeResult<T>>();
-    const fn = (id: string) => client.collection<T>(collectionName).getOne(id);
+  function getById(id: MaybeRef<string | undefined>) {
+    const result = ref<MaybeResult<C>>();
+    const fn = (id: string) => client.collection<C>(collectionName).getOne(id);
 
     watchQuery(result, id, fn);
     return result;
   }
 
-  async function list(): Promise<T[]>;
-  async function list(opts: {
-    page: number;
-    perPage: number;
-    options?: RecordListOptions;
-  }): Promise<T[]>;
   async function list(opts?: {
     page: number;
     perPage: number;
     options?: RecordListOptions;
-  }): Promise<T[]> {
+  }): Promise<C[]> {
     if (opts)
       return (
         await client
-          .collection<T>(collectionName)
+          .collection<C>(collectionName)
           .getList(opts.page, opts.perPage, opts.options)
       ).items;
-    return client.collection<T>(collectionName).getFullList();
+    return client.collection<C>(collectionName).getFullList();
   }
 
   function update<T extends FormData | Record<string, unknown> | undefined>(
     id: string,
     data: T
   ) {
-    return client.collection<T>(collectionName).update(id, data);
+    return client.collection<C>(collectionName).update(id, data);
   }
 
   return {

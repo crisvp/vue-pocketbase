@@ -1,7 +1,4 @@
-/** @type {import('vite').UserConfig} */
-
 import { defineConfig } from "vite";
-import { coverageConfigDefaults } from "vitest/config";
 import dts from "vite-plugin-dts";
 
 export default defineConfig(({ mode }) => {
@@ -34,22 +31,6 @@ export default defineConfig(({ mode }) => {
     resolve: {
       alias: {
         "@": import.meta.dirname + "/src",
-      },
-    },
-    test: {
-      environment: "jsdom",
-      typecheck: {
-        tsconfig: "tsconfig.test.json",
-      },
-      testFiles: ["**/*.test.ts"],
-      transform: {
-        "^.+\\.ts$": "ts-jest",
-      },
-      coverage: {
-        provider: "v8",
-        reporter: ["text", "json", "html"],
-        reportsDirectory: "./tests/coverage",
-        exclude: [...coverageConfigDefaults.exclude, "**/index.ts"],
       },
     },
   };

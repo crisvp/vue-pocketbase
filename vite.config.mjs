@@ -33,5 +33,8 @@ export default defineConfig(({ mode }) => {
         "@": import.meta.dirname + "/src",
       },
     },
+    test: {
+      environment: "happy-dom",
+    },
   };
 });

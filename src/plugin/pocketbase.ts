@@ -1,5 +1,8 @@
 import { ref, type App, type Ref } from "vue";
-import { Client as PocketBase, type AuthModel } from "@crisvp/pocketbase-js";
+import {
+  Client as PocketBase,
+  type AuthModel,
+} from "@crisvp/pocketbase-js/src";
 import Cookies from "universal-cookie";
 import cookie from "cookie";
 
@@ -53,7 +56,7 @@ export class VuePocketbaseClient extends EventTarget {
     );
     this.client.authStore.loadFromCookie(cookie);
 
-    this.client.authStore.onChange((token, record) => {
+    this.client.authStore.onChange((token: string, record: AuthModel) => {
       if (!token || !record) {
         this.authenticated.value = false;
         this.client.authStore.clear();

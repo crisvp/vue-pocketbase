@@ -35,7 +35,7 @@
     "@types/cookie": "^0.6.0",
     "@vitest/coverage-v8": "^1.6.0",
     "eslint": "^8.57.0",
-    "jsdom": "^24.1.0",
+    "happy-dom": "^14.12.3",
     "msw": "^2.3.1",
     "prettier": "^3.3.2",
     "typescript": "^5.4.5",

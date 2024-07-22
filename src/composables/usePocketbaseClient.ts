@@ -17,7 +17,7 @@ export interface PocketbaseClient {
   authenticated: Ref<boolean>;
   authenticate: (
     email: string,
-    password: string
+    password: string,
   ) => Promise<RecordAuthResponse<RecordModel>>;
   reset: (opts: { clearStore: boolean }) => void;
 }
@@ -27,7 +27,7 @@ export function usePocketbaseClient(
     expireDays: 7,
     cookieName: "pocketbase_auth_token",
     pocketbase: undefined,
-  }
+  },
 ): VuePocketbaseClient {
   const vueClient = options.pocketbase
     ? new VuePocketbaseClient({ ...options })
@@ -35,7 +35,7 @@ export function usePocketbaseClient(
 
   if (!vueClient?.client)
     throw new Error(
-      "Pocketbase not available. Is the plugin installed and added to your Vue app?"
+      "Pocketbase not available. Is the plugin installed and added to your Vue app?",
     );
 
   vueClient.configure(options);

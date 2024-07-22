@@ -9,7 +9,7 @@ vi.stubGlobal("document", {
 const mocks = vi.hoisted(() => ({
   changeFunction: (
     _token: string | undefined,
-    _record: Record<string, unknown>
+    _record: Record<string, unknown>,
   ) => {
     /* noop */
   },

@@ -31,7 +31,7 @@ describe("usePocketbase", () => {
     test("provides authenticated, and filter directly", () => {
       expect(pb.authenticated).toHaveProperty(
         "value",
-        pb.client.authenticated.value
+        pb.client.authenticated.value,
       );
       expect(pb.filter).toBe(pb.client.filter);
     });
@@ -68,7 +68,7 @@ describe("usePocketbase", () => {
     expect(
       () =>
         (pb.collection.account =
-          null as unknown as typeof pb.collection.account)
+          null as unknown as typeof pb.collection.account),
     ).toThrowError();
   });
 });

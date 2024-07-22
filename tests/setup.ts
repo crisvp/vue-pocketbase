@@ -3,7 +3,7 @@ import { VuePocketbaseClient } from "../src/plugin/pocketbase";
 import { Collection } from "../src/composables/usePocketbaseCollection";
 
 const injectedVuePocketbase = vi.hoisted(() =>
-  vi.fn(() => new VuePocketbaseClient())
+  vi.fn(() => new VuePocketbaseClient()),
 );
 
 vi.mock("vue", async () => {

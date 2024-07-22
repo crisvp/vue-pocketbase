@@ -15,7 +15,7 @@ const restHandlers = [
     // also throws a 404 when receiving an empty object with a HTTP 200.
     //
     // TODO: Investigate what pocketbase actually returns in this case.
-    HttpResponse.json({}, { status: 404 })
+    HttpResponse.json({}, { status: 404 }),
   ),
   http.get("/api/collections/test_collection/records/ae40239d2bc4477", () =>
     HttpResponse.json({
@@ -25,7 +25,7 @@ const restHandlers = [
       updated: "2022-06-25 11:03:50.052",
       created: "2022-06-25 11:03:35.163",
       name: "test1-id",
-    })
+    }),
   ),
   http.get("/api/collections/test_collection/records", () =>
     HttpResponse.json({
@@ -51,7 +51,7 @@ const restHandlers = [
           name: "test2",
         },
       ],
-    })
+    }),
   ),
   http.get("/api/collections/test_filter/records", (req) => {
     const filter = new URL(req.request.url).searchParams.get("filter");
@@ -75,7 +75,7 @@ const restHandlers = [
     });
   }),
   http.post("/api/collections/test_collection/records", () =>
-    HttpResponse.json({ id: "1234", name: "test3" })
+    HttpResponse.json({ id: "1234", name: "test3" }),
   ),
   http.patch("/api/collections/test_collection/records/ae40239d2bc4477", () => {
     return HttpResponse.json({
@@ -164,7 +164,7 @@ describe("usePocketbaseCollection", () => {
   it("can not get by id, when id is undefined", async () => {
     const collection = usePocketbaseCollection(client, "test_collection");
     expect(() => collection.getById<TestCollection>(undefined)).toThrowError(
-      /required/
+      /required/,
     );
   });
 

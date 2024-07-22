@@ -12,7 +12,7 @@ export function usePocketbase<T extends CollectionSpecification>() {
   const client = usePocketbaseClient();
 
   const userId = computed(() =>
-    client.authenticated.value ? client.client.authStore.model?.id : null
+    client.authenticated.value ? client.client.authStore.model?.id : null,
   );
 
   return {
@@ -28,7 +28,7 @@ export function usePocketbase<T extends CollectionSpecification>() {
       },
       get<IdOrName extends Readonly<string>>(
         _target: CollectionService<T>,
-        prop: IdOrName
+        prop: IdOrName,
       ) {
         return client.client.collection(prop);
       },

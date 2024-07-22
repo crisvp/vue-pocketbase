@@ -52,7 +52,7 @@ export class VuePocketbaseClient extends EventTarget {
     });
     const cookie = document.cookie.replace(
       `${this.options.cookieName}=`,
-      "pb_auth="
+      "pb_auth=",
     );
     this.client.authStore.loadFromCookie(cookie);
 
@@ -84,7 +84,7 @@ export class VuePocketbaseClient extends EventTarget {
   async authenticate(email: string, password: string) {
     const authData = await this.authCollection.authWithPassword(
       email,
-      password
+      password,
     );
     return authData;
   }
@@ -102,7 +102,8 @@ export class VuePocketbaseClient extends EventTarget {
   setCookie() {
     const pbCookie = this.client.authStore.exportToCookie();
     const expires = new Date(
-      new Date().getTime() + 1000 * 60 * 60 * 24 * this.options.cookieExpiration
+      new Date().getTime() +
+        1000 * 60 * 60 * 24 * this.options.cookieExpiration,
     );
     const parsed = cookie.parse(pbCookie);
 
@@ -122,7 +123,7 @@ export default {
       url: "http://127.0.0.1:8090",
       cookieExpiration: 7,
       cookieName: "pocketbase_auth_token",
-    }
+    },
   ) {
     const pb = new VuePocketbaseClient(options);
 

@@ -10,7 +10,7 @@ export type QueryRef<T> = MaybeResult<T> & {
 
 export function usePocketbaseCollection<C extends Collection>(
   pocketbase: VuePocketbaseClient,
-  collectionName: string
+  collectionName: string,
 ) {
   const { client } = pocketbase;
   const lastError = ref<Error | null>(null);
@@ -22,7 +22,7 @@ export function usePocketbaseCollection<C extends Collection>(
   function watchQuery(
     result: Ref<C | null | undefined>,
     filter: MaybeRef<string | undefined>,
-    fn: (filter: string) => Promise<C>
+    fn: (filter: string) => Promise<C>,
   ): void {
     watchEffect(() => {
       if (isRef(filter)) {
@@ -39,7 +39,7 @@ export function usePocketbaseCollection<C extends Collection>(
               lastError.value = e as Error;
             }
           },
-          { immediate: true }
+          { immediate: true },
         );
       } else {
         if (!filter) throw new Error("Filter is required");
@@ -88,7 +88,7 @@ export function usePocketbaseCollection<C extends Collection>(
 
   function update<T extends FormData | Record<string, unknown> | undefined>(
     id: string,
-    data: T
+    data: T,
   ) {
     return client.collection<C>(collectionName).update(id, data);
   }

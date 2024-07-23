@@ -1,5 +1,5 @@
 import { RecordModel, type RecordListOptions } from "@crisvp/pocketbase-js";
-import { type MaybeRef, watchEffect, ref, isRef, Ref, watch } from "vue";
+import { type MaybeRef, ref, isRef, Ref, watch } from "vue";
 import type { VuePocketbaseClient } from "../plugin";
 
 export type MaybeResult<T> = T | undefined | null;
@@ -15,7 +15,7 @@ export function usePocketbaseCollection<C extends Collection>(
   const { client } = pocketbase;
   const lastError = ref<Error | null>(null);
 
-  function create(data: C) {
+  function create(data: Partial<C>) {
     return client.collection<C>(collectionName).create(data);
   }
 
@@ -24,34 +24,34 @@ export function usePocketbaseCollection<C extends Collection>(
     filter: MaybeRef<string | undefined>,
     fn: (filter: string) => Promise<C>,
   ): void {
-    watchEffect(() => {
-      if (isRef(filter)) {
-        watch(
-          filter,
-          async (filter) => {
-            try {
-              if (filter) {
-                const r = await fn(filter);
-                result.value = r;
-              }
-            } catch (e: unknown) {
-              result.value = null;
-              lastError.value = e as Error;
+    if (isRef(filter)) {
+      watch(
+        filter,
+        async (filter) => {
+          try {
+            if (filter) {
+              const r = await fn(filter);
+              result.value = r;
             }
-          },
-          { immediate: true },
-        );
-      } else {
-        if (!filter) throw new Error("Filter is required");
-
-        fn(filter)
-          .then((r) => (result.value = r))
-          .catch((e) => {
+          } catch (e: unknown) {
             result.value = null;
-            lastError.value = e;
-          });
-      }
-    });
+            if (e instanceof Error) lastError.value = e;
+            else lastError.value = new Error(`Unknown error: ${e}`);
+          }
+        },
+        { immediate: true },
+      );
+    } else {
+      if (!filter) throw new Error("Filter is required");
+
+      fn(filter)
+        .then((r) => (result.value = r))
+        .catch((e) => {
+          result.value = null;
+          if (e instanceof Error) lastError.value = e;
+          else lastError.value = new Error(`Unknown error: ${e}`);
+        });
+    }
   }
 
   function get(filter: MaybeRef<string> = "*") {

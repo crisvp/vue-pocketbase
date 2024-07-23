@@ -1,8 +1,5 @@
 import { ref, type App, type Ref } from "vue";
-import {
-  Client as PocketBase,
-  type AuthModel,
-} from "@crisvp/pocketbase-js/src";
+import { Client as PocketBase, type AuthModel } from "@crisvp/pocketbase-js";
 import Cookies from "universal-cookie";
 import cookie from "cookie";
 

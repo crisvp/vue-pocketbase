@@ -3,21 +3,20 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { usePocketbaseCollection } from "../../src/composables/usePocketbaseCollection";
 import { Client } from "@crisvp/pocketbase-js";
 import { usePocketbaseClient } from "../../src/composables/usePocketbaseClient";
-import { type TestCollection } from "../setup";
 import { ref } from "vue";
 import { http, HttpResponse } from "msw";
 
 const flushPromises = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 const restHandlers = [
-  http.get("/api/collections/no_collection/records", () =>
+  http.get("*/api/collections/no_collection/records", () =>
     // 404 is not documented in the Pocketbase API, but the client library
     // also throws a 404 when receiving an empty object with a HTTP 200.
     //
     // TODO: Investigate what pocketbase actually returns in this case.
     HttpResponse.json({}, { status: 404 }),
   ),
-  http.get("/api/collections/test_collection/records/ae40239d2bc4477", () =>
+  http.get("*/api/collections/test_collection/records/ae40239d2bc4477", () =>
     HttpResponse.json({
       id: "ae40239d2bc4477",
       collectionId: "a98f514eb05f454",
@@ -27,7 +26,7 @@ const restHandlers = [
       name: "test1-id",
     }),
   ),
-  http.get("/api/collections/test_collection/records", () =>
+  http.get("*/api/collections/test_collection/records", () =>
     HttpResponse.json({
       page: 1,
       perPage: 100,
@@ -53,7 +52,7 @@ const restHandlers = [
       ],
     }),
   ),
-  http.get("/api/collections/test_filter/records", (req) => {
+  http.get("*/api/collections/test_filter/records", (req) => {
     const filter = new URL(req.request.url).searchParams.get("filter");
     if (filter === "error") return HttpResponse.error();
 
@@ -74,33 +73,43 @@ const restHandlers = [
       ],
     });
   }),
-  http.post("/api/collections/test_collection/records", () =>
+  http.post("*/api/collections/test_collection/records", () =>
     HttpResponse.json({ id: "1234", name: "test3" }),
   ),
-  http.patch("/api/collections/test_collection/records/ae40239d2bc4477", () => {
-    return HttpResponse.json({
-      id: "ae40239d2bc4477",
-      collectionId: "a98f514eb05f454",
-      collectionName: "test_collection",
-      updated: "2022-06-25 11:03:50.052",
-      created: "2022-06-25 11:03:35.163",
-      name: "updated",
-    });
-  }),
+  http.patch(
+    "*/api/collections/test_collection/records/ae40239d2bc4477",
+    () => {
+      return HttpResponse.json({
+        id: "ae40239d2bc4477",
+        collectionId: "a98f514eb05f454",
+        collectionName: "test_collection",
+        updated: "2022-06-25 11:03:50.052",
+        created: "2022-06-25 11:03:35.163",
+        name: "updated",
+      });
+    },
+  ),
 ];
 
 const server = setupServer(...restHandlers);
-
 beforeAll(() => server.listen({ onUnhandledRequest: "error" }));
 
 describe("usePocketbaseCollection", () => {
-  const client = usePocketbaseClient({ pocketbase: new Client() });
-  expect(client).toBeDefined();
+  const client = usePocketbaseClient({
+    pocketbase: new Client("http://127.0.0.1:8090"),
+  });
+
+  it("should create a client", () => {
+    expect(client).toBeDefined();
+    expect(client.options.url).toBe("http://127.0.0.1:8090");
+  });
 
   it("should get an item from an existing collection", async () => {
     const pbc = usePocketbaseCollection(client, "test_collection");
-    const result = pbc.get<TestCollection>("1234");
+    const result = pbc.get("1234");
     await flushPromises();
+
+    expect(pbc.lastError.value).toBeNull();
 
     expect(result.value?.name).toBe("test1");
     // @ts-expect-error doesNotExist does not exist
@@ -126,7 +135,7 @@ describe("usePocketbaseCollection", () => {
   it("works with ref filters", async () => {
     const filter = ref("filter1");
     const collection = usePocketbaseCollection(client, "test_filter");
-    const result = collection.get<TestCollection>(filter);
+    const result = collection.get(filter);
     await flushPromises();
     expect(result.value?.name).toBe("result1");
 
@@ -143,7 +152,7 @@ describe("usePocketbaseCollection", () => {
 
   it("can get by id", async () => {
     const collection = usePocketbaseCollection(client, "test_collection");
-    const result = collection.getById<TestCollection>("ae40239d2bc4477");
+    const result = collection.getById("ae40239d2bc4477");
     await flushPromises();
     expect(result.value?.name).toBe("test1-id");
   });
@@ -152,7 +161,7 @@ describe("usePocketbaseCollection", () => {
     const collection = usePocketbaseCollection(client, "test_collection");
     const id = ref<string>();
 
-    const result = collection.getById<TestCollection>(id);
+    const result = collection.getById(id);
     await flushPromises();
     expect(result.value?.name).toBe(undefined);
 
@@ -163,9 +172,7 @@ describe("usePocketbaseCollection", () => {
 
   it("can not get by id, when id is undefined", async () => {
     const collection = usePocketbaseCollection(client, "test_collection");
-    expect(() => collection.getById<TestCollection>(undefined)).toThrowError(
-      /required/,
-    );
+    expect(() => collection.getById(undefined)).toThrowError(/required/);
   });
 
   it("can list collections", async () => {

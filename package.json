@@ -15,7 +15,7 @@
   },
   "scripts": {
     "prepack": "pnpm build",
-    "prepublish": "pnpm lint",
+    "prepublish": "pnpm lint && pnpm test",
     "build": "tsc -b . && vite build",
     "test": "vitest run",
     "coverage": "vitest run --coverage",

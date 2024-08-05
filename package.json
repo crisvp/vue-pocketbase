@@ -21,8 +21,8 @@
     "coverage": "vitest run --coverage",
     "lint": "tsc -p . --noEmit && eslint ."
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["vue","pocketbase"],
+  "author": "H.C. van Pelt <hcvp@pm.me>",
   "license": "ISC",
   "peerDependencies": {
     "@crisvp/pocketbase-js": "workspace:^",

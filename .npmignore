@@ -1,5 +1,11 @@
 .gitignore
 .npmignore
 vite.config.mts
+tests
+src
+tsconfig.json
 .nx
 *gz
+.gitrepo
+.prettierignore
+*.config.*

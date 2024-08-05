@@ -5,3 +5,4 @@ build
 .nx
 *gz
 coverage
+vite*.timestamp-*js

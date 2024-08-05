@@ -1,6 +1,6 @@
 {
   "name": "@crisvp/vue-pocketbase",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "A plugin to use Pocketbase with Vue",
   "type": "module",
   "types": "./dist/vue-pocketbase.d.ts",
